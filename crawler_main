@@ -1,0 +1,164 @@
+# 东方财富 app接口
+import datetime
+import json
+import os
+import time
+
+import requests
+
+
+def collect_stage_high_data(file_path: str):
+    print("阶段新高 开始处理")
+    clear_file(file_path)
+    first_page_res = fetch_stage_high_single_page(1)
+    first_page_data = json.loads(first_page_res)
+    if first_page_data["result"] is None:
+        print("阶段新高无数据")
+        return
+    pages = first_page_data["result"]["pages"]
+    for stock in first_page_data["result"]["data"]:
+        print_to_file("{},{}".format(stock["SECURITY_CODE"], stock["SECURITY_NAME_ABBR"]), file_path)
+    for page_num in range(2, pages + 1):
+        page_res = fetch_stage_high_single_page(page_num)
+        page_data = json.loads(page_res)
+        for stock in page_data["result"]["data"]:
+            print_to_file("{},{}".format(stock["SECURITY_CODE"], stock["SECURITY_NAME_ABBR"]), file_path)
+    print("阶段新高 处理完成")
+
+
+## 阶段新高单请求
+def fetch_stage_high_single_page(page_num: int) -> str:
+    # print("fetch_stage_high_single_page: {}".format(page_num))
+    url = "https://datacenter.eastmoney.com/securities/api/data/v1/get?client=APP&filter=%28BOARD_TAG%3D%22STAGE_HIGH%22%29&" \
+          "pageNumber={}&pageSize=100&reportName=RPT_CUSTOM_STOCK_FORM_TREND&" \
+          "sortColumns=CHANGE_RATE&sortTypes=-1&source=SECURITIES".format(page_num)
+
+    payload = {}
+    headers = {
+        'Host': 'datacenter.eastmoney.com',
+        'Accept': 'application/json, text/plain, */*',
+        'Cookie': 'JSESSIONID=E413D8936307B87D60667E8725E54CC4; JSESSIONID=E5681929E5A165FF41C08647D80A4B83',
+        'User-Agent': '%E4%B8%9C%E6%96%B9%E8%B4%A2%E5%AF%8C/20220718100.383 CFNetwork/1331.0.7 Darwin/21.4.0',
+        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+    time.sleep(1)
+    print("阶段新高response: {}".format(response.text))
+
+    return response.text
+
+
+def collect_break_through_data(file_path: str):
+    print("平台突破 开始处理")
+    clear_file(file_path)
+    first_page_res = fetch_break_through_single_page(1)
+    first_page_data = json.loads(first_page_res)
+    if first_page_data["result"] is None:
+        print("平台突破无数据")
+        return
+    pages = first_page_data["result"]["pages"]
+    for stock in first_page_data["result"]["data"]:
+        print_to_file("{},{}".format(stock["SECURITY_CODE"], stock["SECURITY_NAME_ABBR"]), file_path)
+    for page_num in range(2, pages + 1):
+        page_res = fetch_break_through_single_page(page_num)
+        page_data = json.loads(page_res)
+        for stock in page_data["result"]["data"]:
+            print_to_file("{},{}".format(stock["SECURITY_CODE"], stock["SECURITY_NAME_ABBR"]), file_path)
+    print("平台突破 处理完成")
+
+
+# 平台突破
+def fetch_break_through_single_page(page_num: int) -> str:
+    url = "https://datacenter.eastmoney.com/securities/api/data/v1/get?client=APP&filter=%28BOARD_TAG%3D%22BREAK_THROUGH%22%29&" \
+          "pageNumber={}&pageSize=100&reportName=RPT_CUSTOM_STOCK_FORM_TREND&sortColumns=CHANGE_RATE&sortTypes=-1&source=SECURITIES".format(
+        page_num)
+
+    payload = {}
+    headers = {
+        'Host': 'datacenter.eastmoney.com',
+        'Accept': 'application/json, text/plain, */*',
+        'Cookie': 'JSESSIONID=D682728284C83AF820351401ECFE3AEF; JSESSIONID=E5681929E5A165FF41C08647D80A4B83',
+        'User-Agent': '%E4%B8%9C%E6%96%B9%E8%B4%A2%E5%AF%8C/20220718100.383 CFNetwork/1331.0.7 Darwin/21.4.0',
+        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+    time.sleep(1)
+    print("平台突破response: {}".format(response.text))
+    return response.text
+
+
+# 历史新高
+def fetch_record_high_single_page(page_num: int) -> str:
+    url = "https://datacenter.eastmoney.com/securities/api/data/v1/get?client=APP&filter=%28BOARD_TAG%3D%22RECORD_HIGH%22%29&" \
+          "pageNumber={}&pageSize=100&reportName=RPT_CUSTOM_STOCK_FORM_TREND&sortColumns=CHANGE_RATE&sortTypes=-1&source=SECURITIES".format(
+        page_num)
+
+    payload = {}
+    headers = {
+        'Host': 'datacenter.eastmoney.com',
+        'Accept': 'application/json, text/plain, */*',
+        'Cookie': 'JSESSIONID=8D07983AFF2BE9CD96F851EF27A95387; JSESSIONID=CBDDA7A215F79EDE3B25CE7060566BD5',
+        'User-Agent': '%E4%B8%9C%E6%96%B9%E8%B4%A2%E5%AF%8C/20220718100.383 CFNetwork/1331.0.7 Darwin/21.4.0',
+        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+    time.sleep(1)
+    print("历史新高response: {}".format(response.text))
+
+    return response.text
+
+
+def collect_record_high_data(file_path: str):
+    print("历史新高 开始处理")
+    clear_file(file_path)
+    first_page_res = fetch_record_high_single_page(1)
+    first_page_data = json.loads(first_page_res)
+    if first_page_data["result"] is None:
+        print("历史新高无数据")
+        return
+    pages = first_page_data["result"]["pages"]
+    for stock in first_page_data["result"]["data"]:
+        print_to_file("{},{}".format(stock["SECURITY_CODE"], stock["SECURITY_NAME_ABBR"]), file_path)
+    for page_num in range(2, pages + 1):
+        page_res = fetch_record_high_single_page(page_num)
+        page_data = json.loads(page_res)
+        for stock in page_data["result"]["data"]:
+            print_to_file("{},{}".format(stock["SECURITY_CODE"], stock["SECURITY_NAME_ABBR"]), file_path)
+    print("历史新高 处理完成")
+
+
+def clear_file(file_path: str):
+    with open(file_path, mode='w') as f:
+        f.write("")
+
+
+def print_to_file(content: str, file_path: str):
+    with open(file_path, mode='a') as filename:
+        filename.write(content)
+        filename.write('\n')  # 换行
+
+
+def main():
+    file_dir_path = "."
+    if not os.path.exists(file_dir_path):
+        os.makedirs(file_dir_path)
+    query_date = input("请输入要查询的日期（例如2022-12-23）直接回车 默认当天:")
+    if query_date == "":
+        query_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    collect_stage_high_data(os.path.join(file_dir_path, query_date + "—阶段新高.csv"))
+    collect_break_through_data(os.path.join(file_dir_path, query_date + "—平台突破.csv"))
+    collect_record_high_data(os.path.join(file_dir_path, query_date + "—历史新高.csv"))
+
+
+if __name__ == '__main__':
+    main()
